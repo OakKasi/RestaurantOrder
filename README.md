@@ -1,22 +1,4 @@
-# 🍽️ RestaurantOrder App
 
-แอปพลิเคชันระบบสั่งอาหาร (Restaurant Order) พัฒนาด้วย **React Native + Expo**
-
----
-
-## 📋 สิ่งที่ต้องเตรียมก่อนเริ่ม (Prerequisites)
-
-ก่อนเริ่มทำงาน ให้สมาชิกทุกคนติดตั้งสิ่งเหล่านี้ลงในเครื่อง:
-1. **Node.js**: เวอร์ชัน LTS (v18 หรือ v20 ขึ้นไป) -> [ดาวน์โหลด Node.js](https://nodejs.org/)
-2. **Git**: สำหรับดึงและส่งโค้ด -> [ดาวน์โหลด Git](https://git-scm.com/)
-3. **แอป Expo Go**: ดาวน์โหลดติดเครื่องมือถือไว้สำหรับทดสอบแอป
-   - [Expo Go สำหรับ Android (Play Store)](https://play.google.com/store/apps/details?id=host.exp.exponent)
-   - [Expo Go สำหรับ iOS (App Store)](https://apps.apple.com/app/expo-go/id982107779)
-4. **Code Editor**: แนะนำ **VS Code**
-
----
-
-## 🚀 คู่มือเริ่มต้นใช้งาน (Step-by-Step Setup)
 
 ### ขั้นตอนที่ 1: Clone โปรเจกต์ลงเครื่อง
 เปิด Terminal หรือ Command Prompt ในโฟลเดอร์ที่คุณต้องการเก็บงาน แล้วรัน:
@@ -102,19 +84,3 @@ git push origin feature/menu-screen-ton
 - **react-native-screens**: เพิ่มประสิทธิภาพการเปลี่ยนหน้าจอแบบ Native
 
 ---
-
-## ❓ ปัญหาที่พบบ่อย (Troubleshooting)
-
-- **Q: สแกน QR Code แล้วแอปใน Expo Go ค้าง หรือโหลดไม่ขึ้น?**
-  - ตรวจสอบว่ามือถือและคอมพิวเตอร์ต่อ Wi-Fi เดียวกันหรือไม่
-  - หาก Wi-Fi หอพัก/มหาลัย บล็อกการเชื่อมต่อ ให้รันด้วยคำสั่ง Tunnel แทน:
-    ```bash
-    npx expo start --tunnel
-    ```
-- **Q: ขึ้น Error เรื่อง Module หรือ Dependencies?**
-  - ให้ลองลบ `node_modules` แล้วรัน `npm install` ใหม่อีกครั้ง
-- **Q: โดน Error Metro Cache ค้าง?**
-  - ให้สั่งรันแบบล้างแคชด้วยคำสั่ง:
-    ```bash
-    npx expo start -c
-    ```
