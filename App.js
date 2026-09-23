@@ -1,25 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { SQLiteProvider } from 'expo-sqlite';
-import { DATABASE_NAME, initDb } from './src/db/database';
-import { colors } from './src/styles/theme';
-import RegisterScreen from './src/screens/RegisterScreen';
-import { styles } from './src/styles/appStyles';
+import Order_Screen from './src/screens/order';
+import { DATABASE_NAME,initDb } from './src/db/db';
+import Add_Menu_Screen from './src/screens/add_menu';
 export default function App() {
   return (
-    <>
-    <StatusBar barStyle ='light-content' backgroundColor={colors.bg}/>
+
         <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDb}>
           <View style = {styles.container}>
-            <View style = {styles.header}>
-              <Text style={styles.title}>ระบบลงทะเบียนนิสิต</Text>
-            </View>
-            <RegisterScreen/>
+             <Add_Menu_Screen/>
           </View>
-    
         </SQLiteProvider>
-    
-    </>
 
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    paddingTop:50,
+    paddingHorizontal:20
+  },
+  title:{
+    fontSize:24,
+    fontWeight:'700'
+  }
+});
