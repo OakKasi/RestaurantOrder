@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { SQLiteProvider } from 'expo-sqlite';
-import { DATABASE_NAME, initDb}from'./src/db/db';
-import Employee from './src/db/screens/employee';
-
+import Order_Screen from './src/screens/order';
+import { DATABASE_NAME,initDb } from './src/db/db';
+import Add_Menu_Screen from './src/screens/add_menu';
 export default function App() {
   return (
 
         <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDb}>
           <View style = {styles.container}>
-             <Employee/>
+             <Add_Menu_Screen/>
           </View>
         </SQLiteProvider>
 

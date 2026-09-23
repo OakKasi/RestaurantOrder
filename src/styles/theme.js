@@ -9,7 +9,17 @@ export const COLORS = {
   cyan: '#61DAFB',
   green: '#3FB950',
   red: '#F85149',
+
+  // สถานะออเดอร์
+  pending: '#D29922',     
+  pendingBg: '#3B2F14',   
+  cooking: '#58A6FF',      
+  cookingBg: '#122A45',    
+  served: '#3FB950',       
+  servedBg: '#132B1B',     
 };
+
+
 
 export const TOPINSET = Platform.select({
   ios: 56,

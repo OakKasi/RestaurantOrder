@@ -15,6 +15,7 @@ export async function initDb(db) {
       category_id  INTEGER NOT NULL,
       name         TEXT NOT NULL,
       price        INTEGER NOT NULL CHECK (price >= 0),
+      image_url    TEXT NOT NULL,
       is_available INTEGER NOT NULL DEFAULT 1 CHECK (is_available IN (0,1)),
       FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT
     );
@@ -57,5 +58,25 @@ export async function initDb(db) {
     CREATE INDEX IF NOT EXISTS idx_bills_table_status ON bills(table_id, status);
   `);
 
-  await seedInitialData(db);
+  //await seedInitialData(db);
+}
+
+// export async function Add_MenuItem(db,category_id,name,price,is_available){
+//   const add_menu=await db.runAsync(`INSERT INTO menu_items (category_id,name,price,is_available) VALUES (?, ?, ?, ?)`,[category_id,name,price,is_available]);
+// };
+
+export async function Clear_Order(db,id){
+  await db.runAsync(`DELETE FROM order_items WHERE id=?`,[id]);
+};
+export async function Clear_All_Order(db){
+    await db.runAsync(`DELETE FROM order_items`);
+};
+export async function List_order(db){
+  const order=await db.runAsync(`SELECT id,quantity,note,price_at_order,status 
+    FROM order_items ORDER BY id DESC`);
+  return order;
+};
+
+export async function Update_Status(db,id,current_statue){
+  await db.runAsync(`UPDATE order_items SET status=? WHERE id=?`,[current_statue,id]);
 }
