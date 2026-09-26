@@ -75,52 +75,52 @@ export async function seedInitialData(db) {
       await db.runAsync('INSERT INTO categories (name) VALUES (?)', [cat]);
     }
 
-  const menuItems = [
-    // อาหารจานเดียว
-    { catId: 1, name: 'ข้าวผัดกะเพราหมูสับ', price: 5000 },
-    { catId: 1, name: 'ข้าวผัดหมู', price: 5500 },
-    { catId: 1, name: 'ข้าวผัดพริกแกงไก่', price: 5500 },
-    { catId: 1, name: 'ผัดซีอิ๊วหมู', price: 4500 },
-    { catId: 1, name: 'ข้าวหน้าหมูทอด', price: 6000 },
-    { catId: 1, name: 'ราดหน้าไก่', price: 4000 },
-    { catId: 1, name: 'แกงฟักทองไก่', price: 6000 },
+    const menuItems = [
+      // อาหารจานเดียว
+      { catId: 1, name: 'ข้าวผัดกะเพราหมูสับ', price: 5000 },
+      { catId: 1, name: 'ข้าวผัดหมู', price: 5500 },
+      { catId: 1, name: 'ข้าวผัดพริกแกงไก่', price: 5500 },
+      { catId: 1, name: 'ผัดซีอิ๊วหมู', price: 4500 },
+      { catId: 1, name: 'ข้าวหน้าหมูทอด', price: 6000 },
+      { catId: 1, name: 'ราดหน้าไก่', price: 4000 },
+      { catId: 1, name: 'แกงฟักทองไก่', price: 6000 },
 
-    // ต้ม/แกง
-    { catId: 2, name: 'ต้มยำกุ้งน้ำข้น', price: 15000 },
-    { catId: 2, name: 'ต้มข่าไก่', price: 12000 },
-    { catId: 2, name: 'แกงจืดเต้าหู้หมูสับ', price: 10000 },
-    { catId: 2, name: 'แกงเขียวหวานไก่', price: 12000 },
-    { catId: 2, name: 'แกงเผ็ดเป็ดย่าง', price: 18000 },
-    { catId: 2, name: 'แกงส้มชะอมไข่', price: 13000 },
-    { catId: 2, name: 'ต้มแซ่บกระดูกอ่อน', price: 13000 },
+      // ต้ม/แกง
+      { catId: 2, name: 'ต้มยำกุ้งน้ำข้น', price: 15000 },
+      { catId: 2, name: 'ต้มข่าไก่', price: 12000 },
+      { catId: 2, name: 'แกงจืดเต้าหู้หมูสับ', price: 10000 },
+      { catId: 2, name: 'แกงเขียวหวานไก่', price: 12000 },
+      { catId: 2, name: 'แกงเผ็ดเป็ดย่าง', price: 18000 },
+      { catId: 2, name: 'แกงส้มชะอมไข่', price: 13000 },
+      { catId: 2, name: 'ต้มแซ่บกระดูกอ่อน', price: 13000 },
 
-    // ผัด/ทอด
-    { catId: 3, name: 'ปีกไก่ทอดน้ำปลา', price: 10000 },
-    { catId: 3, name: 'หมูกรอบผัดพริกเกลือ', price: 12000 },
-    { catId: 3, name: 'ผักบุ้งไฟแดง', price: 7000 },
-    { catId: 3, name: 'ทอดมันกุ้ง', price: 12000 },
-    { catId: 3, name: 'กะหล่ำปลีผัดน้ำปลา', price: 8000 },
-    { catId: 3, name: 'คั่วกลิ้งซี่โครงหมู', price: 12000 },
-    { catId: 3, name: 'ผัดพริกแกงไก่', price: 10000 },
+      // ผัด/ทอด
+      { catId: 3, name: 'ปีกไก่ทอดน้ำปลา', price: 10000 },
+      { catId: 3, name: 'หมูกรอบผัดพริกเกลือ', price: 12000 },
+      { catId: 3, name: 'ผักบุ้งไฟแดง', price: 7000 },
+      { catId: 3, name: 'ทอดมันกุ้ง', price: 12000 },
+      { catId: 3, name: 'กะหล่ำปลีผัดน้ำปลา', price: 8000 },
+      { catId: 3, name: 'คั่วกลิ้งซี่โครงหมู', price: 12000 },
+      { catId: 3, name: 'ผัดพริกแกงไก่', price: 10000 },
 
-    // อาหารทะเล
-    { catId: 4, name: 'ปูผัดผงกะหรี่', price: 18000 },
-    { catId: 4, name: 'ปลากะพงนึ่งมะนาว', price: 250000 },
-    { catId: 4, name: 'หมึกผัดไข่เค็ม', price: 15000 },
-    { catId: 4, name: 'หอยเชลล์อบเนยกระเทียม', price: 18000 },
-    { catId: 4, name: 'หอยนางรมทรงเครื่อง', price: 15000 },
-    { catId: 4, name: 'กุ้งแม่น้ำเผา', price: 35000 },
-    { catId: 4, name: 'กุ้งอบวุ้นเส้น', price: 15000 },
+      // อาหารทะเล
+      { catId: 4, name: 'ปูผัดผงกะหรี่', price: 18000 },
+      { catId: 4, name: 'ปลากะพงนึ่งมะนาว', price: 250000 },
+      { catId: 4, name: 'หมึกผัดไข่เค็ม', price: 15000 },
+      { catId: 4, name: 'หอยเชลล์อบเนยกระเทียม', price: 18000 },
+      { catId: 4, name: 'หอยนางรมทรงเครื่อง', price: 15000 },
+      { catId: 4, name: 'กุ้งแม่น้ำเผา', price: 35000 },
+      { catId: 4, name: 'กุ้งอบวุ้นเส้น', price: 15000 },
 
-    // เครื่องดื่ม
-    { catId: 5, name: 'น้ำเปล่า', price: 1000 },
-    { catId: 5, name: 'โค้ก', price: 2000 },
-    { catId: 5, name: 'ชาไทย', price: 3500 },
-    { catId: 5, name: 'กาแฟโบราณ', price: 3000 },
-    { catId: 5, name: 'ชาเขียวมะลิ', price: 3000 },
-    { catId: 5, name: 'น้ำส้มคั้น', price: 3500 },
-    { catId: 5, name: 'น้ำเก๊กฮวย', price: 2500 }
-  ];
+      // เครื่องดื่ม
+      { catId: 5, name: 'น้ำเปล่า', price: 1000 },
+      { catId: 5, name: 'โค้ก', price: 2000 },
+      { catId: 5, name: 'ชาไทย', price: 3500 },
+      { catId: 5, name: 'กาแฟโบราณ', price: 3000 },
+      { catId: 5, name: 'ชาเขียวมะลิ', price: 3000 },
+      { catId: 5, name: 'น้ำส้มคั้น', price: 3500 },
+      { catId: 5, name: 'น้ำเก๊กฮวย', price: 2500 }
+    ];
 
     for (const item of menuItems) {
       await db.runAsync(

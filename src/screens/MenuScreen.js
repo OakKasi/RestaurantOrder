@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, TextInput, Modal, StyleSheet, Alert, ScrollView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getCategories, getMenuItemsByCategory, submitOrderTransaction } from '../db/db';
 
 export default function MenuScreen({ route, navigation }) {
-  const { billId, tableNumber } = route.params || { billId: 1, tableNumber: 1 };
+  const { billId, tableNumber } = route.params || {};
   const db = useSQLiteContext();
 
   const [categories, setCategories] = useState([]);
@@ -16,6 +16,24 @@ export default function MenuScreen({ route, navigation }) {
   const [tempQty, setTempQty] = useState(1);
   const [tempNote, setTempNote] = useState('');
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#0284c7',
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 6,
+          }}
+          onPress={() => navigation.navigate('BillSummaryScreen', { billId, tableNumber })}
+        >
+          <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 13 }}>สรุปบิล</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, billId, tableNumber]);
+
   useEffect(() => {
     loadCategories();
   }, []);
@@ -24,7 +42,7 @@ export default function MenuScreen({ route, navigation }) {
     try {
       const cats = await getCategories(db);
       setCategories(cats);
-      if (cats.length > 0) {
+      if (cats && cats.length > 0) {
         handleSelectCategory(cats[0].id);
       }
     } catch (error) {
@@ -95,22 +113,12 @@ export default function MenuScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>โต๊ะที่ {tableNumber}</Text>
-        <TouchableOpacity
-          style={styles.billBtn}
-          onPress={() => navigation.navigate('BillSummaryScreen', { billId, tableNumber })}
-        >
-          <Text style={styles.billBtnText}>ดูสรุปบิล</Text>
-        </TouchableOpacity>
-      </View>
-
       <View style={{ height: 50 }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll}>
           {categories.map((cat) => (
             <TouchableOpacity
               key={cat.id}
-              style={[ styles.catBtn, selectedCatId === cat.id && styles.catBtnActive]}
+              style={[styles.catBtn, selectedCatId === cat.id && styles.catBtnActive]}
               onPress={() => handleSelectCategory(cat.id)}
             >
               <Text style={selectedCatId === cat.id ? styles.catTextActive : styles.catText}>{cat.name}</Text>
@@ -151,9 +159,9 @@ export default function MenuScreen({ route, navigation }) {
 
       <Modal visible={modalVisible} animationType="fade" transparent>
         <View style={styles.popupOverlay}>
-          <View style={styles.popupContent}>
-            <Text style={styles.popupTitle}>{selectedMenuItem?.name}</Text>
-            <Text style={styles.popupPrice}>ราคา {(selectedMenuItem?.price / 100).toFixed(2)} บาท</Text>
+          <View style={styles.popupBg}>
+            <Text style={styles.popupMenu}>{selectedMenuItem?.name}</Text>
+            <Text style={styles.popupPrice}>ราคา {((selectedMenuItem?.price || 0) / 100).toFixed(2)} บาท</Text>
 
             <View style={styles.qtyRow}>
               <TouchableOpacity
@@ -162,7 +170,7 @@ export default function MenuScreen({ route, navigation }) {
               >
                 <Text style={styles.qtyBtnText}>-</Text>
               </TouchableOpacity>
-              <Text style={styles.qtyVal}>{tempQty}</Text>
+                <Text style={styles.qtyVal}>{tempQty}</Text>
               <TouchableOpacity
                 style={styles.qtyBtn}
                 onPress={() => setTempQty(tempQty + 1)}
@@ -203,31 +211,7 @@ export default function MenuScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    paddingTop: 42, 
     backgroundColor: '#f4f4f4' 
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
-  headerTitle: { 
-    fontSize: 20, 
-    fontWeight: 'bold' 
-  },
-  billBtn: { 
-    backgroundColor: '#0284c7', 
-    paddingHorizontal: 12, 
-    paddingVertical: 8, 
-    borderRadius: 6 
-  },
-  billBtnText: { 
-    color: '#fff', 
-    fontWeight: 'bold' 
   },
   catScroll: { 
     paddingHorizontal: 10, 
@@ -250,14 +234,14 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontWeight: 'bold' 
   },
-  menuCard: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    padding: 16,
-    marginHorizontal: 12,
-    marginVertical: 4,
-    borderRadius: 8,
-    alignItems: 'center',
+  menuCard: { 
+    flexDirection: 'row', 
+    backgroundColor: '#fff', 
+    padding: 16, 
+    marginHorizontal: 12, 
+    marginVertical: 4, 
+    borderRadius: 8, 
+    alignItems: 'center' 
   },
   menuName: { 
     fontSize: 16, 
@@ -272,25 +256,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f87c24', 
     borderRadius: 12, 
     paddingHorizontal: 8, 
-    paddingVertical: 4 
-  },
+    paddingVertical: 4 },
   badgeText: { 
     color: '#fff', 
     fontWeight: 'bold' 
   },
-  cartFooter: {
+  cartFooter: { 
     padding: 16, 
-    backgroundColor: '#fff',
-    borderTopWidth: 1,borderColor: '#e2e8f0', 
+    backgroundColor: '#fff', 
+    borderTopWidth: 1, 
+    borderColor: '#e2e8f0', 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
-    alignItems: 'center'
+    alignItems: 'center' 
   },
   cartCountText: { 
     fontSize: 15, 
     fontWeight: '500' 
   },
-  submitBtn: { 
+  submitBtn: {
     backgroundColor: '#16a34a', 
     paddingHorizontal: 16, 
     paddingVertical: 10, 
@@ -307,13 +291,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center' 
   },
-  popupContent: { 
+  popupBg: { 
     width: '85%', 
     backgroundColor: '#fff', 
     borderRadius: 12, 
     padding: 20 
   },
-  popupTitle: { 
+  popupMenu: { 
     fontSize: 18, 
     fontWeight: 'bold' 
   },
@@ -329,7 +313,7 @@ const styles = StyleSheet.create({
     marginBottom: 16 
   },
   qtyBtn: { 
-    width: 36, 
+    width: 36,
     height: 36, 
     backgroundColor: '#e2e8f0', 
     justifyContent: 'center', 
@@ -352,7 +336,8 @@ const styles = StyleSheet.create({
   inputNote: { 
     borderWidth: 1, 
     borderColor: '#cbd5e1', 
-    borderRadius: 6, padding: 10, 
+    borderRadius: 6, 
+    padding: 10, 
     marginBottom: 16 
   },
   popupActions: { 
@@ -374,5 +359,16 @@ const styles = StyleSheet.create({
   btnText: { 
     color: '#fff', 
     fontWeight: 'bold' 
+  },
+  headerBillBtn: {
+    backgroundColor: '#0284c7',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  headerBillBtnText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 13,
   },
 });
