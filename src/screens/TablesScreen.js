@@ -124,8 +124,22 @@ export default function TablesScreen({ navigation }) {
         )}
         ListFooterComponent={
           <View style={styles.footer}>
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+              <TouchableOpacity
+                style={[styles.actionBtn, { backgroundColor: '#0284c7' }]}
+                onPress={() => navigation.navigate('Dashboard')}
+              >
+                <Text style={styles.actionBtnText}>📊 สรุปยอดขาย</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionBtn, { backgroundColor: '#475569' }]}
+                onPress={() => navigation.navigate('MenuSettingsScreen')}
+              >
+                <Text style={styles.actionBtnText}>⚙️ จัดการเมนู</Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity style={styles.resetBtn} onPress={handleResetSalesData}>
-              <Text style={styles.resetBtnText}>ล้างข้อมูลการขายทั้งหมด </Text>
+              <Text style={styles.resetBtnText}>ล้างข้อมูลการขายทั้งหมด</Text>
             </TouchableOpacity>
           </View>
         }
@@ -165,6 +179,18 @@ const styles = StyleSheet.create({
   },
   resetBtnText: {
     color: '#dc2626',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  actionBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionBtnText: {
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
   },

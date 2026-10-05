@@ -52,9 +52,17 @@ CREATE TABLE IF NOT EXISTS order_items (
   quantity       INTEGER NOT NULL CHECK (quantity > 0),
   note           TEXT,
   price_at_order INTEGER NOT NULL CHECK (price_at_order >= 0),
-  status         TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','cooking','served')),
+  status         TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','cooking','served','cancel')),
   FOREIGN KEY (round_id) REFERENCES order_rounds(id) ON DELETE CASCADE,
   FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE RESTRICT
+);
+
+-- 7. ตารางประวัติการยกเลิกรายการอาหาร (ระดับ ข3)
+CREATE TABLE IF NOT EXISTS cancel_items (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_item_id  INTEGER NOT NULL,
+  cancel_at      TEXT NOT NULL,
+  FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_order_items_round_id ON order_items(round_id);

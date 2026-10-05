@@ -10,7 +10,6 @@ export const COLORS = {
   green: '#3FB950',
   red: '#F85149',
 
-  // สถานะออเดอร์
   pending: '#D29922',     
   pendingBg: '#3B2F14',   
   cooking: '#58A6FF',      
