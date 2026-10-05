@@ -196,3 +196,28 @@ export async function getBillTotal(db, billId) {
   );
   return result.total_stang;
 }
+
+export async function getKitchenItems(db, includeServed = false) {
+  return await db.getAllAsync(
+    `SELECT oi.id, oi.quantity, oi.note, oi.status,
+            mi.name AS menu_name,
+            ord.round_number, ord.ordered_at,
+            t.table_number
+     FROM order_items oi
+     JOIN order_rounds ord ON oi.round_id = ord.id
+     JOIN bills b ON ord.bill_id = b.id
+     JOIN tables t ON b.table_id = t.id
+     JOIN menu_items mi ON oi.menu_item_id = mi.id
+     WHERE b.status = 'open'
+       AND (? = 1 OR oi.status != 'served')
+     ORDER BY ord.ordered_at ASC, oi.id ASC`,
+    [includeServed ? 1 : 0]
+  );
+}
+
+export async function updateOrderItemStatus(db, itemId, status) {
+  await db.runAsync(
+    'UPDATE order_items SET status = ? WHERE id = ?',
+    [status, itemId]
+  );
+}

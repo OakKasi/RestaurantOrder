@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useLayoutEffect } from 'react'; // 👈 1. เพิ่ม useLayoutEffect ตรงนี้
 import { FlatList, StyleSheet, Text, View, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,6 +8,20 @@ export default function TablesScreen({ navigation }) {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
+
+  // 👈 2. ใส่ useLayoutEffect ไว้ตรงนี้
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable 
+          onPress={() => navigation.navigate('KitchenScreen')}
+          style={{ paddingHorizontal: 10, paddingVertical: 5 }}
+        >
+          <Text style={{ color: '#0284c7', fontWeight: 'bold', fontSize: 16 }}>ครัว</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
   const loadTables = useCallback(async () => {
     setLoading(true);

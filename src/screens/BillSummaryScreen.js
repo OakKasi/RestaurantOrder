@@ -60,7 +60,7 @@ export default function BillSummaryScreen({ route, navigation }) {
             {round.items.map((it, idx) => (
               <View key={idx} style={styles.itemRow}>
                 <Text style={styles.itemText}>
-                  x{it.quantity} {it.menu_name} {it.note ? `- ${it.note}` : ''}
+                  x{it.quantity} {it.menu_name} {it.note ? `- ${it.note}` : ''} {`(${(it.price_at_order / 100).toFixed(2)})`}
                 </Text>
                 <Text style={styles.itemPrice}>
                   {((it.quantity * it.price_at_order) / 100).toFixed(2)} บาท
