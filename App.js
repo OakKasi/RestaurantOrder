@@ -11,7 +11,8 @@ import MenuScreen from './src/screens/MenuScreen';
 import BillSummaryScreen from './src/screens/BillSummaryScreen';
 import KitchenScreen from './src/screens/KitchenScreen';
 import BillHistoryScreen from './src/screens/BillHistoryScreen';
-import { useLayoutEffect } from 'react';
+import SalesSummaryScreen from './src/screens/SalesSummaryScreen';
+import MenuSettingsScreen from './src/screens/MenuSettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,16 @@ export default function App() {
             component={BillHistoryScreen} 
             options={{ title: 'ประวัติบิล' }} 
             />
+          <Stack.Screen
+            name="SalesSummaryScreen"
+            component={SalesSummaryScreen}
+            options={{ title: 'สรุปยอดขายรายวัน' }}
+          />
+          <Stack.Screen
+            name="MenuSettingsScreen"
+            component={MenuSettingsScreen}
+            options={{ title: 'ตั้งค่าเมนู' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />

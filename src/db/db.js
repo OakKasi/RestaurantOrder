@@ -295,3 +295,61 @@ export async function getClosedBills(db) {
      ORDER BY b.closed_at DESC`
   );
 }
+
+export async function getDailySalesByCategory(db, startIso, endIso) {
+  return await db.getAllAsync(
+    `SELECT c.id AS category_id,
+            c.name AS category_name,
+            SUM(oi.quantity) AS total_qty,
+            SUM(oi.quantity * oi.price_at_order) AS total_sales
+     FROM bills b
+     JOIN order_rounds ord ON ord.bill_id = b.id
+     JOIN order_items oi ON oi.round_id = ord.id
+     JOIN menu_items mi ON oi.menu_item_id = mi.id
+     JOIN categories c ON mi.category_id = c.id
+     WHERE b.status = 'closed' AND b.closed_at >= ? AND b.closed_at < ?
+     GROUP BY c.id, c.name
+     ORDER BY total_sales DESC`,
+    [startIso, endIso]
+  );
+}
+
+export async function getDailySalesTotal(db, startIso, endIso) {
+  return await db.getFirstAsync(
+    `SELECT COUNT(DISTINCT b.id) AS bill_count,
+            COALESCE(SUM(oi.quantity * oi.price_at_order), 0) AS total
+     FROM bills b
+     JOIN order_rounds ord ON ord.bill_id = b.id
+     JOIN order_items oi ON oi.round_id = ord.id
+     WHERE b.status = 'closed' AND b.closed_at >= ? AND b.closed_at < ?`,
+    [startIso, endIso]
+  );
+}
+
+export async function getAllMenuItems(db) {
+  return await db.getAllAsync(
+    `SELECT mi.id, mi.name, mi.price, mi.is_available,
+            mi.category_id, c.name AS category_name
+     FROM menu_items mi
+     JOIN categories c ON mi.category_id = c.id
+     ORDER BY c.id ASC, mi.id ASC`
+  );
+}
+
+export async function addMenuItem(db, categoryId, name, price) {
+  await db.runAsync(
+    'INSERT INTO menu_items (category_id, name, price, is_available) VALUES (?, ?, ?, 1)',
+    [categoryId, name, price]
+  );
+}
+
+export async function updateMenuItemPrice(db, menuItemId, price) {
+  await db.runAsync('UPDATE menu_items SET price = ? WHERE id = ?', [price, menuItemId]);
+}
+
+export async function setMenuItemAvailability(db, menuItemId, isAvailable) {
+  await db.runAsync('UPDATE menu_items SET is_available = ? WHERE id = ?', [
+    isAvailable ? 1 : 0,
+    menuItemId,
+  ]);
+}

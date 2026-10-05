@@ -116,9 +116,25 @@ export default function TablesScreen({ navigation }) {
         </Pressable>
       )}
       ListFooterComponent={
-        <Pressable style={styles.clearBtn} onPress={handleClearData}>
-          <Text style={styles.clearBtnText}>ล้างข้อมูลการขายทั้งหมด</Text>
-        </Pressable>
+        <View>
+          <View style={styles.footerRow}>
+            <Pressable
+              style={styles.footerBtn}
+              onPress={() => navigation.navigate('SalesSummaryScreen')}
+            >
+              <Text style={styles.footerBtnText}>สรุปยอดขาย</Text>
+            </Pressable>
+            <Pressable
+              style={styles.footerBtn}
+              onPress={() => navigation.navigate('MenuSettingsScreen')}
+            >
+              <Text style={styles.footerBtnText}>ตั้งค่าเมนู</Text>
+            </Pressable>
+          </View>
+          <Pressable style={styles.clearBtn} onPress={handleClearData}>
+            <Text style={styles.clearBtnText}>ล้างข้อมูลการขายทั้งหมด</Text>
+          </Pressable>
+        </View>
       }
     />
   );
@@ -140,6 +156,16 @@ const styles = StyleSheet.create({
   cardOpen: { backgroundColor: '#fdecea', borderColor: '#e57373' },
   tableNumber: { fontSize: 18, fontWeight: 'bold' },
   status: { fontSize: 13, color: '#555', marginTop: 4 },
+  footerRow: { flexDirection: 'row', marginHorizontal: 6, marginTop: 8 },
+  footerBtn: {
+    flex: 1,
+    margin: 6,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#0284c7',
+    alignItems: 'center',
+  },
+  footerBtnText: { color: '#fff', fontWeight: 'bold' },
   clearBtn: {
     margin: 12,
     padding: 12,
