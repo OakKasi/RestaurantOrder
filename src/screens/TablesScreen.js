@@ -1,4 +1,4 @@
-import { useState, useCallback, useLayoutEffect } from 'react'; // 👈 1. เพิ่ม useLayoutEffect ตรงนี้
+import { useState, useCallback, useLayoutEffect } from 'react';
 import { FlatList, StyleSheet, Text, View, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,7 +9,6 @@ export default function TablesScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
 
-  // 👈 2. ใส่ useLayoutEffect ไว้ตรงนี้
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -46,7 +45,6 @@ export default function TablesScreen({ navigation }) {
     }
   }, [db]);
 
-  // โหลดข้อมูลโต๊ะใหม่ทุกครั้งที่กลับมาหน้านี้
   useFocusEffect(
     useCallback(() => {
       loadTables();
@@ -59,7 +57,6 @@ export default function TablesScreen({ navigation }) {
     try {
       setProcessingId(item.id);
 
-      // 1. กรณีมีบิลเปิดอยู่แล้ว
       if (item.bill_id) {
         navigation.navigate('MenuScreen', { 
           billId: item.bill_id, 
