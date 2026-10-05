@@ -15,6 +15,8 @@ export default function MenuScreen({ route, navigation }) {
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [tempQty, setTempQty] = useState(1);
   const [tempNote, setTempNote] = useState('');
+  const [reviewVisible, setReviewVisible] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -95,19 +97,36 @@ export default function MenuScreen({ route, navigation }) {
 
   const cartList = Object.values(cart);
 
-  const handleConfirmOrder = async () => {
+  const cartTotal = cartList.reduce((sum, it) => sum + it.quantity * it.priceAtOrder, 0);
+
+  const openReview = () => {
     if (cartList.length === 0) {
       Alert.alert('แจ้งเตือน', 'กรุณาเลือกรายการอาหารก่อนส่งเข้าครัว');
       return;
     }
+    setReviewVisible(true);
+  };
 
+  const removeFromCart = (menuItemId) => {
+    const updated = { ...cart };
+    delete updated[menuItemId];
+    setCart(updated);
+    if (Object.keys(updated).length === 0) setReviewVisible(false);
+  };
+
+  const handleConfirmOrder = async () => {
+    if (submitting || cartList.length === 0) return;
+    setSubmitting(true);
     try {
       await submitOrderTransaction(db, billId, cartList);
-      Alert.alert('สำเร็จ', 'ส่งรายการเข้าครัวเรียบร้อยแล้ว!');
+      setReviewVisible(false);
       setCart({});
+      Alert.alert('สำเร็จ', 'ส่งรายการเข้าครัวเรียบร้อยแล้ว!');
     } catch (error) {
       console.error('Submit order error:', error);
       Alert.alert('ผิดพลาด', 'ไม่สามารถส่งออร์เดอร์ได้');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -151,8 +170,8 @@ export default function MenuScreen({ route, navigation }) {
       {cartList.length > 0 && (
         <View style={styles.cartFooter}>
           <Text style={styles.cartCountText}>เลือกไว้ {cartList.length} รายการ</Text>
-          <TouchableOpacity style={styles.submitBtn} onPress={handleConfirmOrder}>
-            <Text style={styles.submitBtnText}>ส่งเข้าครัว</Text>
+          <TouchableOpacity style={styles.submitBtn} onPress={openReview}>
+            <Text style={styles.submitBtnText}>ตรวจรายการ</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -199,6 +218,49 @@ export default function MenuScreen({ route, navigation }) {
                 onPress={saveToCart}
               >
                 <Text style={styles.btnText}>ตกลง</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={reviewVisible} animationType="slide" transparent>
+        <View style={styles.popupOverlay}>
+          <View style={[styles.popupBg, { maxHeight: '80%' }]}>
+            <Text style={styles.popupMenu}>ตรวจรายการก่อนส่ง · โต๊ะ {tableNumber}</Text>
+            <ScrollView style={{ marginVertical: 12 }}>
+              {cartList.map((it) => (
+                <View key={it.menuItemId} style={styles.reviewRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.reviewName}>x{it.quantity} {it.name}</Text>
+                    {it.note ? <Text style={styles.reviewNote}>หมายเหตุ: {it.note}</Text> : null}
+                    <TouchableOpacity onPress={() => removeFromCart(it.menuItemId)}>
+                      <Text style={styles.reviewRemove}>ลบรายการ</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.reviewPrice}>
+                    {((it.quantity * it.priceAtOrder) / 100).toFixed(2)} บาท
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+            <View style={styles.reviewTotalRow}>
+              <Text style={styles.reviewTotalLabel}>รวมรอบนี้</Text>
+              <Text style={styles.reviewTotalValue}>{(cartTotal / 100).toFixed(2)} บาท</Text>
+            </View>
+            <View style={styles.popupActions}>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.cancelBtn]}
+                onPress={() => setReviewVisible(false)}
+              >
+                <Text style={styles.btnText}>กลับไปแก้ไข</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.confirmBtn, submitting && { opacity: 0.5 }]}
+                onPress={handleConfirmOrder}
+                disabled={submitting}
+              >
+                <Text style={styles.btnText}>ยืนยันส่งเข้าครัว</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -359,6 +421,45 @@ const styles = StyleSheet.create({
   btnText: { 
     color: '#fff', 
     fontWeight: 'bold' 
+  },
+  reviewRow: { 
+    flexDirection: 'row', 
+    paddingVertical: 8, 
+    borderBottomWidth: 1, 
+    borderColor: '#eee' 
+  },
+  reviewName: { 
+    fontSize: 15, 
+    fontWeight: '600' 
+  },
+  reviewNote: { 
+    fontSize: 13, 
+    color: '#dc2626', 
+    marginTop: 2 
+  },
+  reviewRemove: { 
+    fontSize: 13, 
+    color: '#dc2626', 
+    marginTop: 4 
+  },
+  reviewPrice: { 
+    fontSize: 14, 
+    color: '#333', 
+    marginLeft: 8 
+  },
+  reviewTotalRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 16 
+  },
+  reviewTotalLabel: { 
+    fontSize: 16, 
+    fontWeight: 'bold' 
+  },
+  reviewTotalValue: { 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    color: '#16a34a' 
   },
   headerBillBtn: {
     backgroundColor: '#0284c7',

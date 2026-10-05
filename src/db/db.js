@@ -132,11 +132,43 @@ export async function seedInitialData(db) {
 }
 
 export async function clearAllTransactionData(db) {
-  await db.execAsync(`
-    DELETE FROM order_items;
-    DELETE FROM order_rounds;
-    DELETE FROM bills;
-  `);
+  await db.withTransactionAsync(async () => {
+    await db.execAsync(`
+      DELETE FROM order_items;
+      DELETE FROM order_rounds;
+      DELETE FROM bills;
+      DELETE FROM sqlite_sequence WHERE name IN ('order_items', 'order_rounds', 'bills');
+    `);
+  });
+}
+
+export async function getTablesWithOpenBill(db) {
+  return await db.getAllAsync(
+    `SELECT t.id, t.table_number, b.id AS bill_id
+     FROM tables t
+     LEFT JOIN bills b ON b.table_id = t.id AND b.status = 'open'
+     ORDER BY t.table_number`
+  );
+}
+
+export async function getOrCreateOpenBill(db, tableId) {
+  let billId = null;
+  await db.withTransactionAsync(async () => {
+    const existing = await db.getFirstAsync(
+      "SELECT id FROM bills WHERE table_id = ? AND status = 'open' LIMIT 1",
+      [tableId]
+    );
+    if (existing) {
+      billId = existing.id;
+      return;
+    }
+    const result = await db.runAsync(
+      "INSERT INTO bills (table_id, opened_at, status) VALUES (?, ?, 'open')",
+      [tableId, new Date().toISOString()]
+    );
+    billId = result.lastInsertRowId;
+  });
+  return billId;
 }
 
 export async function getCategories(db) {

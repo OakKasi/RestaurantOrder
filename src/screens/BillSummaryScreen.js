@@ -92,7 +92,7 @@ export default function BillSummaryScreen({ route, navigation }) {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.itemText}>x{it.quantity} {it.menu_name}</Text>
                   <Text style={styles.itemSub}>
-                    @ {(it.price_at_order / 100).toFixed(2)} บาท/หน่วย{it.note ? ` · ${it.note}` : ''}
+                     {(it.price_at_order / 100).toFixed(2)} บาท{it.note ? ` · ${it.note}` : ''}
                   </Text>
                 </View>
                 <Text style={styles.itemPrice}>
@@ -101,7 +101,7 @@ export default function BillSummaryScreen({ route, navigation }) {
               </View>
             ))}
             <View style={styles.sumRow}>
-              <Text style={styles.sumText}>ยอดรวมรอบนี้</Text>
+              <Text style={styles.sumText}>ยอดรวม</Text>
               <Text style={styles.sumValue}>{(round.round_total / 100).toFixed(2)} บาท</Text>
             </View>
           </View>
@@ -110,7 +110,7 @@ export default function BillSummaryScreen({ route, navigation }) {
       />
 
       <View style={styles.totalBar}>
-        <Text style={styles.totalLabel}>ยอดรวมทั้งบิล</Text>
+        <Text style={styles.totalLabel}>ยอดรวมทั้งหมด</Text>
         <Text style={styles.totalValue}>{(total / 100).toFixed(2)} บาท</Text>
       </View>
 

@@ -9,7 +9,9 @@ import { DATABASE_NAME, initDb } from './src/db/db';
 import TablesScreen from './src/screens/TablesScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import BillSummaryScreen from './src/screens/BillSummaryScreen';
-import KitchenScreen from './src/screens/KitchenScreen'; // 👈 จุดที่ 1: เพิ่ม import ที่นี่
+import KitchenScreen from './src/screens/KitchenScreen';
+import BillHistoryScreen from './src/screens/BillHistoryScreen';
+import { useLayoutEffect } from 'react';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,12 +44,16 @@ export default function App() {
             component={BillSummaryScreen} 
             options={{ title: 'สรุปรายการบิล' }} 
           />
-          {/* 👈 จุดที่ 2: เพิ่ม Stack.Screen สำหรับ KitchenScreen ตรงนี้ */}
           <Stack.Screen
             name="KitchenScreen"
             component={KitchenScreen}
             options={{ title: 'หน้าจอครัว' }}
           />
+          <Stack.Screen 
+            name="BillHistoryScreen" 
+            component={BillHistoryScreen} 
+            options={{ title: 'ประวัติบิล' }} 
+            />
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />

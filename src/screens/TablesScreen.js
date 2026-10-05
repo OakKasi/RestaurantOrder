@@ -1,7 +1,8 @@
-import { useState, useCallback, useLayoutEffect } from 'react'; // 👈 1. เพิ่ม useLayoutEffect ตรงนี้
+import { useState, useCallback, useLayoutEffect } from 'react';
 import { FlatList, StyleSheet, Text, View, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
+import { getTablesWithOpenBill, getOrCreateOpenBill, clearAllTransactionData } from '../db/db';
 
 export default function TablesScreen({ navigation }) {
   const db = useSQLiteContext();
@@ -9,16 +10,23 @@ export default function TablesScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
 
-  // 👈 2. ใส่ useLayoutEffect ไว้ตรงนี้
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Pressable 
-          onPress={() => navigation.navigate('KitchenScreen')}
-          style={{ paddingHorizontal: 10, paddingVertical: 5 }}
-        >
-          <Text style={{ color: '#0284c7', fontWeight: 'bold', fontSize: 16 }}>ครัว</Text>
-        </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Pressable
+            onPress={() => navigation.navigate('BillHistoryScreen')}
+            style={{ paddingHorizontal: 8, paddingVertical: 5, marginRight: 8 }}
+          >
+            <Text style={{ color: '#0284c7', fontWeight: 'bold', fontSize: 16 }}>ประวัติ</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('KitchenScreen')}
+            style={{ paddingHorizontal: 8, paddingVertical: 5 }}
+          >
+            <Text style={{ color: '#0284c7', fontWeight: 'bold', fontSize: 16 }}>ครัว</Text>
+          </Pressable>
+        </View>
       ),
     });
   }, [navigation]);
@@ -26,18 +34,7 @@ export default function TablesScreen({ navigation }) {
   const loadTables = useCallback(async () => {
     setLoading(true);
     try {
-      const rows = await db.getAllAsync(`
-        SELECT
-          t.id,
-          t.table_number,
-          MIN(b.id) AS bill_id,
-          MAX(b.status) AS bill_status
-        FROM tables t
-        LEFT JOIN bills b ON b.table_id = t.id AND b.status = 'open'
-        GROUP BY t.id, t.table_number
-        ORDER BY t.table_number
-      `);
-      setTables(rows);
+      setTables(await getTablesWithOpenBill(db));
     } catch (error) {
       console.error('Error loading tables:', error);
       Alert.alert('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลโต๊ะได้');
@@ -46,7 +43,6 @@ export default function TablesScreen({ navigation }) {
     }
   }, [db]);
 
-  // โหลดข้อมูลโต๊ะใหม่ทุกครั้งที่กลับมาหน้านี้
   useFocusEffect(
     useCallback(() => {
       loadTables();
@@ -58,37 +54,10 @@ export default function TablesScreen({ navigation }) {
 
     try {
       setProcessingId(item.id);
-
-      // 1. กรณีมีบิลเปิดอยู่แล้ว
-      if (item.bill_id) {
-        navigation.navigate('MenuScreen', { 
-          billId: item.bill_id, 
-          tableNumber: item.table_number 
-        });
-        return;
-      }
-
-      const existing = await db.getFirstAsync(
-        "SELECT id FROM bills WHERE table_id = ? AND status = 'open' LIMIT 1",
-        [item.id]
-      );
-      if (existing) {
-        navigation.navigate('MenuScreen', { 
-          billId: existing.id, 
-          tableNumber: item.table_number 
-        });
-        return;
-      }
-
-      const now = new Date().toISOString();
-      const result = await db.runAsync(
-        'INSERT INTO bills (table_id, opened_at, status) VALUES (?, ?, ?)',
-        [item.id, now, 'open']
-      );
-
-      navigation.navigate('MenuScreen', { 
-        billId: result.lastInsertRowId, 
-        tableNumber: item.table_number 
+      const billId = item.bill_id ?? (await getOrCreateOpenBill(db, item.id));
+      navigation.navigate('MenuScreen', {
+        billId,
+        tableNumber: item.table_number,
       });
     } catch (error) {
       console.error('Error opening bill:', error);
@@ -96,6 +65,30 @@ export default function TablesScreen({ navigation }) {
     } finally {
       setProcessingId(null);
     }
+  };
+
+  const handleClearData = () => {
+    Alert.alert(
+      'ล้างข้อมูลการขาย',
+      'บิล รอบการสั่ง และรายการที่สั่งทั้งหมดจะถูกลบ (เมนูและโต๊ะยังอยู่) ยืนยันหรือไม่?',
+      [
+        { text: 'ยกเลิก', style: 'cancel' },
+        {
+          text: 'ล้างข้อมูล',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearAllTransactionData(db);
+              await loadTables();
+              Alert.alert('สำเร็จ', 'ล้างข้อมูลการขายเรียบร้อยแล้ว');
+            } catch (error) {
+              console.error('Clear data error:', error);
+              Alert.alert('ผิดพลาด', 'ไม่สามารถล้างข้อมูลได้');
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (loading) {
@@ -122,6 +115,11 @@ export default function TablesScreen({ navigation }) {
           <Text style={styles.status}>{item.bill_id ? 'มีบิลเปิดอยู่' : 'ว่าง'}</Text>
         </Pressable>
       )}
+      ListFooterComponent={
+        <Pressable style={styles.clearBtn} onPress={handleClearData}>
+          <Text style={styles.clearBtnText}>ล้างข้อมูลการขายทั้งหมด</Text>
+        </Pressable>
+      }
     />
   );
 }
@@ -142,4 +140,13 @@ const styles = StyleSheet.create({
   cardOpen: { backgroundColor: '#fdecea', borderColor: '#e57373' },
   tableNumber: { fontSize: 18, fontWeight: 'bold' },
   status: { fontSize: 13, color: '#555', marginTop: 4 },
+  clearBtn: {
+    margin: 12,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#dc2626',
+    alignItems: 'center',
+  },
+  clearBtnText: { color: '#dc2626', fontWeight: 'bold' },
 });
