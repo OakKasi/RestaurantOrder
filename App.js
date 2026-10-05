@@ -11,6 +11,10 @@ import BillHistoryScreen from './src/screens/BillHistoryScreen';
 import TablesScreen from './src/screens/TablesScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import BillSummaryScreen from './src/screens/BillSummaryScreen';
+<<<<<<< Updated upstream
+=======
+import Dashboard_Screen from './src/screens/dashbord';
+>>>>>>> Stashed changes
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -106,7 +110,33 @@ export default function App() {
             component={Add_Menu_Screen}
             options={{ title: 'เพิ่มเมนูอาหาร' }}
           />
+<<<<<<< Updated upstream
 
+=======
+        <Stack.Screen
+            name="Dashboard"
+            component={Dashboard_Screen}
+            options={({ navigation }) => ({
+              title: 'เเสดงยอดขาย',
+              headerRight: () => (
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#16a34a',
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    borderRadius: 6,
+                    marginRight: 8,
+                  }}
+                  onPress={() => navigation.navigate('OrderScreen')}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 13 }}>
+                    order
+                  </Text>
+                </TouchableOpacity>
+              ),
+            })}
+          />
+>>>>>>> Stashed changes
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />
