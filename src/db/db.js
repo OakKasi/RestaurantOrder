@@ -221,3 +221,45 @@ export async function updateOrderItemStatus(db, itemId, status) {
     [status, itemId]
   );
 }
+
+export async function closeBill(db, billId) {
+  const result = await db.runAsync(
+    "UPDATE bills SET status = 'closed', closed_at = ? WHERE id = ? AND status = 'open'",
+    [new Date().toISOString(), billId]
+  );
+  return result.changes > 0;
+}
+
+export async function getBillStatus(db, billId) {
+  const row = await db.getFirstAsync('SELECT status FROM bills WHERE id = ?', [billId]);
+  return row ? row.status : null;
+}
+
+export async function getBillRoundItems(db, billId) {
+  return await db.getAllAsync(
+    `SELECT ord.id AS round_id, ord.round_number, ord.ordered_at,
+            mi.name AS menu_name, oi.quantity, oi.note,
+            oi.price_at_order, oi.status,
+            SUM(oi.quantity * oi.price_at_order) OVER (PARTITION BY ord.id) AS round_total
+     FROM order_rounds ord
+     JOIN order_items oi ON oi.round_id = ord.id
+     JOIN menu_items mi ON oi.menu_item_id = mi.id
+     WHERE ord.bill_id = ?
+     ORDER BY ord.round_number, oi.id`,
+    [billId]
+  );
+}
+
+export async function getClosedBills(db) {
+  return await db.getAllAsync(
+    `SELECT b.id, t.table_number, b.opened_at, b.closed_at,
+            COALESCE(SUM(oi.quantity * oi.price_at_order), 0) AS total
+     FROM bills b
+     JOIN tables t ON b.table_id = t.id
+     LEFT JOIN order_rounds ord ON ord.bill_id = b.id
+     LEFT JOIN order_items oi ON oi.round_id = ord.id
+     WHERE b.status = 'closed'
+     GROUP BY b.id, t.table_number, b.opened_at, b.closed_at
+     ORDER BY b.closed_at DESC`
+  );
+}
