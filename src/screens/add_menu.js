@@ -44,8 +44,6 @@ function Add_Menu_Screen({ navigation }) {
     }
 
     try {
-      // แปลงราคาบาทเป็นหน่วยสตางค์ (Satang) เพื่อตรงกับ schema ฐานข้อมูล (INTEGER)
-      // และไม่กระทบต่อ mock data 30 กว่าเมนูเดิม
       const priceInSatang = Math.round(numPrice * 100);
       await Add_MenuItem(db, selectedCatId, name.trim(), priceInSatang, imageUrl.trim());
 

@@ -1,14 +1,10 @@
--- schema.sql
-
 PRAGMA foreign_keys = ON;
 
--- 1. ตารางหมวดหมู่อาหาร
 CREATE TABLE IF NOT EXISTS categories (
   id   INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL UNIQUE
 );
 
--- 2. ตารางรายการอาหาร
 CREATE TABLE IF NOT EXISTS menu_items (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   category_id  INTEGER NOT NULL,
@@ -19,13 +15,11 @@ CREATE TABLE IF NOT EXISTS menu_items (
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT
 );
 
--- 3. ตารางโต๊ะในร้าน
 CREATE TABLE IF NOT EXISTS tables (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   table_number INTEGER NOT NULL UNIQUE
 );
 
--- 4. ตารางบิล
 CREATE TABLE IF NOT EXISTS bills (
   id        INTEGER PRIMARY KEY AUTOINCREMENT,
   table_id  INTEGER NOT NULL,
@@ -35,7 +29,6 @@ CREATE TABLE IF NOT EXISTS bills (
   FOREIGN KEY (table_id) REFERENCES tables(id) ON DELETE RESTRICT
 );
 
--- 5. ตารางรอบการสั่งอาหาร
 CREATE TABLE IF NOT EXISTS order_rounds (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   bill_id      INTEGER NOT NULL,
@@ -44,7 +37,6 @@ CREATE TABLE IF NOT EXISTS order_rounds (
   FOREIGN KEY (bill_id) REFERENCES bills(id) ON DELETE CASCADE
 );
 
--- 6. ตารางรายการอาหารที่สั่งในแต่ละรอบ
 CREATE TABLE IF NOT EXISTS order_items (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
   round_id       INTEGER NOT NULL,
@@ -57,7 +49,6 @@ CREATE TABLE IF NOT EXISTS order_items (
   FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE RESTRICT
 );
 
--- 7. ตารางประวัติการยกเลิกรายการอาหาร (ระดับ ข3)
 CREATE TABLE IF NOT EXISTS cancel_items (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
   order_item_id  INTEGER NOT NULL,
