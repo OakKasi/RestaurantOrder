@@ -112,3 +112,8 @@ npm install @react-navigation/native @react-navigation/native-stack
    - โปรโมชัน ส่วนลด ค่าบริการ และ VAT
    - ออกใบเสร็จเป็น PDF หรือต่อเครื่องพิมพ์ความร้อน
 5. Image Picker: ตอนนี้เพิ่มรูปเมนูโดยกรอก URL ยังเลือกรูปจากแกลเลอรีในเครื่องไม่ได้
+
+
+## 6. ลิ้ง GitHub
+
+https://github.com/OakKasi/RestaurantOrder/tree/main
