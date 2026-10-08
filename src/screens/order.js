@@ -2,7 +2,7 @@ import { ActivityIndicator, StyleSheet, View, Text, TouchableOpacity, Alert, Scr
 import { COLORS } from "../styles/theme";
 import { useCallback, useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { List_order, Update_Status, Clear_All_Order, cancel_item } from "../db/db";
+import { List_order, Update_Status, Clear_All_Order, cancel_item ,show_cancel} from "../db/db";
 
 const status_config = {
     pending: { label: 'รอดำเนินการ', text: 'pending', color: COLORS.pending, bordercolor: COLORS.pendingBg },
@@ -25,7 +25,7 @@ function Order_Screen() {
             const order_db = await List_order(db);
             const order = order_db.filter((item) => item.status !== 'served' && item.status !== 'cancel');
             const order_s = order_db.filter((item) => item.status === 'served');
-            const order_c = order_db.filter((item) => item.status === 'cancel');
+            const order_c =await show_cancel(db);
             setOrder_item(order);
             setComplete_order(order_s);
             setCancel_order(order_c);
@@ -47,12 +47,12 @@ function Order_Screen() {
         await reload();
     };
 
-    const Clear_order = async (id, status) => {
+    const Clear_order = async (id,status,round_id, menu_item_id,quantity,note,price_at_order) => {
         if (status !== 'pending') {
             Alert.alert('ไม่สามารถยกเลิกออร์เดอร์ได้', 'ออเดอร์นี้อยู่ระหว่างการดำเนินการหรือเสร็จสิ้นแล้ว');
             return;
         }
-        await cancel_item(db, id);
+        await cancel_item(db, id,round_id, menu_item_id,quantity,note,price_at_order);
         Alert.alert('การดำเนินการสำเร็จ', 'ยกเลิกออร์เดอร์เรียบร้อยแล้ว');
         await reload();
     };
@@ -113,7 +113,7 @@ function Order_Screen() {
                     {item.status === 'pending' && (
                         <TouchableOpacity
                             style={[S.clear_btn, { width: 100 }]}
-                            onPress={() => Clear_order(item.id, item.status)}
+                            onPress={() => Clear_order(item.id,item.status,item.round_id, item.menu_item_id,item.quantity,item.note,item.price_at_order)}
                         >
                             <Text style={[S.clear_text, { paddingHorizontal: 20, paddingVertical: 10 }]}>Cancel</Text>
                         </TouchableOpacity>

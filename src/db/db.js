@@ -5,6 +5,7 @@ export async function initDb(db) {
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;
 
+    DROP TABLE IF EXISTS cancel_items;
     CREATE TABLE IF NOT EXISTS categories (
       id   INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL UNIQUE
@@ -49,16 +50,21 @@ export async function initDb(db) {
       quantity       INTEGER NOT NULL CHECK (quantity > 0),
       note           TEXT,
       price_at_order INTEGER NOT NULL CHECK (price_at_order >= 0),
-      status         TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','cooking','served','cancel')),
+      status         TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','cooking','served')),
       FOREIGN KEY (round_id) REFERENCES order_rounds(id) ON DELETE CASCADE,
       FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE RESTRICT
     );
 
     CREATE TABLE IF NOT EXISTS cancel_items (
       id             INTEGER PRIMARY KEY AUTOINCREMENT,
-      order_item_id  INTEGER NOT NULL,
-      cancel_at      TEXT NOT NULL,
-      FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE
+      round_id       INTEGER NOT NULL,
+      menu_item_id   INTEGER NOT NULL,
+      quantity       INTEGER NOT NULL CHECK (quantity > 0),
+      note           TEXT,
+      price_at_order INTEGER NOT NULL CHECK (price_at_order >= 0),
+      cancel_at   TEXT NOT NULL,
+      FOREIGN KEY (round_id) REFERENCES order_rounds(id) ON DELETE CASCADE,
+      FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE RESTRICT
     );
 
     CREATE INDEX IF NOT EXISTS idx_order_items_round_id ON order_items(round_id);
@@ -114,16 +120,36 @@ export async function getMenuItemsByCategory(db, categoryId) {
 // -------------------------------------------------------------
 // ออเดอร์และห้องครัว (Orders & Kitchen)
 // -------------------------------------------------------------
-
-export async function cancel_item(db, id_item) {
-  await db.runAsync(
-    `INSERT INTO cancel_items (order_item_id, cancel_at) VALUES (?, ?)`,
-    [id_item, new Date().toISOString()]
-  );
-  await db.runAsync(`UPDATE order_items SET status='cancel' WHERE id=?`, [id_item]);
+export async function show_cancel(db) {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString();
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+  const cancel_order = await db.getAllAsync(`
+    SELECT 
+      ci.id,
+      ci.quantity,
+      ci.note,
+      'cancel' AS status,                   
+      ord.round_number AS round_number,         
+      mi.name AS name,
+      t.table_number AS "table",
+      ci.menu_item_id,
+      (ci.price_at_order / 100.0) AS price
+    FROM cancel_items ci
+    JOIN menu_items mi ON ci.menu_item_id = mi.id
+    JOIN order_rounds ord ON ci.round_id = ord.id
+    JOIN bills b ON ord.bill_id = b.id
+    JOIN tables t ON b.table_id = t.id
+    WHERE ci.cancel_at >= ? AND ci.cancel_at <= ?
+    ORDER BY ci.id ASC
+  `, [start, end]);
+  return cancel_order;
 }
-
-export async function Clear_Order(db, id) {
+export async function cancel_item(db, id,id_round,id_menu,quantity,note,price_at) {
+  await db.runAsync(
+    `INSERT INTO cancel_items (round_id, menu_item_id,quantity,note,price_at_order,cancel_at) VALUES (?, ?, ?, ? ,?, ?)`,
+    [id_round, id_menu,quantity,note,price_at,new Date().toISOString()]
+  );
   await db.runAsync(`DELETE FROM order_items WHERE id=?`, [id]);
 }
 
@@ -138,9 +164,12 @@ export async function List_order(db) {
       order_items.quantity,
       order_items.note,
       order_items.status,
+      order_items.round_id,  
+      order_items.price_at_order, 
       order_rounds.round_number AS round_number,
       menu_items.name AS name,
       tables.table_number AS "table",
+      order_items.menu_item_id,
       (order_items.price_at_order / 100.0) AS price
     FROM order_items
     JOIN menu_items ON order_items.menu_item_id = menu_items.id
@@ -307,6 +336,7 @@ export async function selling(db) {
   );
 
   const result = {};
+  
   sale.forEach((row) => {
     result[row.name] = row.total_sales;
     all += row.total_sales;
