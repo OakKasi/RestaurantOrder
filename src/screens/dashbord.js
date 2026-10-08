@@ -8,6 +8,7 @@ function Dashboard_Screen() {
     const db = useSQLiteContext();
     const [catagory,setCatagory]=useState(null);
     const [loading,setLoading]=useState(false);
+
     useEffect(()=>{
         setLoading(true);
         const selling_today=async()=>{
@@ -17,6 +18,7 @@ function Dashboard_Screen() {
         selling_today();
         setLoading(false);
     },[db])
+    
     const render_dash=({item})=>{
         const isall=item.name==='ยอดขายรวมทั้งหมด';
         return(
